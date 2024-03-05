@@ -247,18 +247,19 @@ sudo chmod +x /usr/local/bin/composer
 /etc/php.ini
 - date.timezone = America/Monterrey
 - cgi.fix_pathinfo = 0
+- expose_php = Off
 # Opcional
 - memory_limit = 512M
 - upload_max_filesize = 5M
 
 # Editar el archivo de configuracion de PHP-FPM
 /etc/php-fpm.d/www.conf
-- user = "nombre de usuario"
-- group = "nginx"
+- user = {user}
+- group = nginx
 
-- listen.owner = nginx
+- listen.owner = {user},nginx
 - listen.group = nginx
-- listen.mode = 066
+- listen.mode = 0660
 
 - security.limit_extensions = .php .php3 .php4 .php5 .php7
 
@@ -338,8 +339,9 @@ sudo chmod -R 770 /home/{user}/{project-laravel-folder}/bootstrap/cache
 sudo tail -f /var/log/nginx/error.log
 
 # Comprobar los logs de php-fpm
-sudo tail -f /var/log/php-fpm/www-error.log
+sudo tail -f /var/log/php-fpm/error.log
 
 # Comprobar los logs journalctl
-sudo journalctl -xe nginx
+sudo journalctl -u nginx
+sudo journalctl -u php-fpm
 ```
