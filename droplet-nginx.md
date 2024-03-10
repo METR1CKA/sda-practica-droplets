@@ -3,39 +3,13 @@
 1. Actualizar los droplets
 
 ```bash
-dnf update
+dnf update -y
 ```
 
 2. Reiniciar
 
 ```bash
 reboot
-```
-
-3. Instalar nano vim y net-tools
-
-```bash
-dnf install nano vim net-tools -y
-```
-
-4. Actualizar despues de instalar
-
-```bash
-dnf update -y && dnf upgrade -y
-```
-
-## PUERTOS
-
-1. Editar el archivo `/etc/ssh/sshd_config`
-
-```bash
-nano /etc/ssh/sshd_config
-```
-
-2. Cambiar el puerto de escucha del ssh para el droplet 3
-
-```bash
-Port 44114
 ```
 
 ## AUMENTAR LA MEMORIA RAM
@@ -77,47 +51,6 @@ gpasswd -d {user} wheel
 # Asignar al usuario creado como propietario de su directorio en home, esto es opcional, se ejecuta como root antes de cambiar al usuario creado
 chown -R {user}:{user} /home/{user}
 ```
-
-## CONFIGURACION DE CARPETA .SSH Y ACCESO SSH ENTRE DROPLETS
-
-1. Crear carpeta .ssh y archivo authorized_keys en ambos droplets despues de haber creado el usuario
-
-```bash
-# Puedes crear la carpeta de .ssh para el usuario creado en cualquier directorio, siempre y cuando sea dentro del directorio home del usuario
-# Por default puedes crear solamente: ~/.ssh
-# Por ejemplo: ~/.profile/.ssh o ~/.config/.ssh
-# cd $_ es para cambiar al ultimo directorio creado
-
-# Opcional
-mkdir ~/{carpeta}
-cd $_
-
-mkdir .ssh
-cd $_
-
-# Crear el archivo authorized_keys y pegar el contenido de la llave publica del droplet 1 con la que se conectara el cliente SSH (OpenSSH) con el usuario recien creado
-nano authorized_keys
-
-# Asignar permisos para el directorio y el archivo
-chmod 700 -R ~/{ruta_.ssh}
-chmod 600 ~/{ruta_.ssh}/authorized_keys
-```
-
-2. configurar el `sshd_config` del droplet 3 para el acceso a los usuarios desde el cliente SSH (OpenSSH)
-
-```bash
-AddressFamily inet
-PermitRootLogin no
-AllowUsers {user}@{ip_droplet_1}
-MaxAuthTries 3
-MaxSessions 3
-
-# Default: /home/{user}/.ssh/authorized_keys
-# Por ejemplo: /home/{user}/.profile/.ssh/authorized_keys o /home/{user}/.config/.ssh/authorized_keys
-AuthorizedKeysFile /home/{user}/{ruta_ssh}/authorized_keys
-```
-
-3. Reiniciar el servicio ssh
 
 ## NGINX
 
@@ -183,9 +116,7 @@ sudo netstat -ptona
 
 4. Archivo de configuracion de nginx default.conf
 
-```nginx
-[/etc/nginx/conf.d/default.conf](./default.conf)
-```
+- [/etc/nginx/conf.d/default.conf](default.conf)
 
 5. Reiniciar el servicio de nginx
 
@@ -211,7 +142,7 @@ sudo gpasswd -a {user} nginx
 ```bash
 # Actualizar los repositorios
 sudo dnf update -y
--
+
 # Instalar el repositorio de EPEL
 sudo dnf install epel-release -y
 
@@ -225,7 +156,7 @@ sudo dnf module list reset php -y
 sudo dnf module enable php:remi-8.2
 
 # Instalar PHP
-sudo dnf install php php-common php-xml php-json curl unzip php-fpm php-mysqlnd php-opcache php-gd  php-mbstring php-zip -y
+sudo dnf install php php-common php-xml php-json curl unzip php-fpm php-mysqlnd php-opcache php-gd php-pgsql php-mbstring php-zip -y
 
 # Actualizar la cache de los repositorios
 sudo dnf makecache
@@ -249,7 +180,7 @@ sudo chmod +x /usr/local/bin/composer
 - cgi.fix_pathinfo = 0
 - expose_php = Off
 # Opcional
-- memory_limit = 512M
+- memory_limit = 256M
 - upload_max_filesize = 5M
 
 # Editar el archivo de configuracion de PHP-FPM
@@ -286,6 +217,7 @@ nvm install {node-version}
 source ~/.bashrc
 
 # Clonar el repositorio de Laravel
+sudo dnf install git unzip -y
 git clone {repo}
 
 # Crear el archivo .env en base a el archivo de .env.example añadiendo
@@ -311,6 +243,7 @@ npm run build
 
 ```bash
 # Asignar permisos al usuario de nginx
+sudo chmod 750 /home/{user}
 sudo chown -R {user}:nginx /home/{user}
 
 # Habilitar el acceso a la red para el usuario de nginx
