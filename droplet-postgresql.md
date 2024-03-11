@@ -26,7 +26,10 @@ sudo dnf -qy module disable postgresql
 
 # Instalar postgresql
 sudo dnf update -y
-sudo dnf install postgresql15-server glibc-all-langpacks postgresql15-contrib -y
+# Instalación con server local
+sudo dnf install postgresql15 postgresql15-server glibc-all-langpacks postgresql15-contrib -y
+# Instalación cliente
+sudo dnf install postgresql15 glibc-all-langpacks -y
 
 # Inicializar la base de datos
 sudo dnf update -y
@@ -74,10 +77,10 @@ GRANT ALL PRIVILEGES ON DATABASE {db} TO {user};
 sudo dnf install openssl
 
 # Generar clave privada
-openssl genrsa -des3 -out server.key.pass 2048
+openssl genrsa -aes128 -out server.key 2048
 
 # Eliminar la contraseña de la clave
-openssl rsa -in server.key.pass -out server.key
+openssl rsa -in server.key -out server.key
 
 # Generar la Solicitud de Firma de Certificado (CSR)
 openssl req -new -key server.key -out server.csr
@@ -85,23 +88,25 @@ openssl req -new -key server.key -out server.csr
 # Genera el Certificado SSL autofirmado
 openssl x509 -req -days 365 -in server.csr -signkey server.key -out server.crt
 
+# Generar el certificado autofirmado directamente
+openssl req -new -x509 -nodes -key server.key -days 365 -out server.crt
+
 # Mover los archivos a la carpeta de postgresql
 sudo mv server* /var/lib/pgsql/15/data/
 
 # Editar el archivo postgresql.conf
 /var/lib/pgsql/15/data/postgresql.conf
-- listen_addresses = 'localhost' # Forma 1
+- listen_addresses = 'localhost,{ip-privada}'
 - port = {puerto personalizado}
 - max_connections = 100
 - password_encryption = scram-sha-256
 - ssl = on
 - ssl_cert_file = '/var/lib/pgsql/15/data/server.crt'
 - ssl_key_file = '/var/lib/pgsql/15/data/server.key'
-- ssl_passphrase_command = '/var/lib/pgsql/15/data/server.key.pass'
 
 # Configurar el archivo pg_hba.conf
 /var/lib/pgsql/15/data/pg_hba.conf
-- hostssl    database             userdb             127.0.0.1/32            scram-sha-256
+- hostssl    database       userdb         {ip-privada-web} or {127.0.0.1}/32           scram-sha-256
 
 # Reiniciar el servicio
 sudo systemctl restart postgresql-15
@@ -115,6 +120,22 @@ psql -h localhost -p 23455 -U manzano -d db_sda_p1
 sudo -i -u postgres psql -h localhost -p 23455 -U manzano -d db_sda_p1
 ```
 
+3.1 Generacion alterna del certificado
+
+```bash
+openssl genrsa -aes128 2048 > server.key
+
+openssl rsa -in server.key -out server.key
+
+chmod 400 server.key
+
+chown postgres.postgres server.key
+
+openssl req -new -x509 -key server.key -days 365 -out server.crt
+
+cp server.crt root.crt
+```
+
 4. Agregar las variables de entorno
 
 ```bash
@@ -125,6 +146,7 @@ DB_DATABASE=db_sda_p1
 DB_USERNAME=manzano
 DB_PASSWORD=
 DB_SSLMODE=require
+# Solo de manera local
 DB_CERT_PATH=/ruta/a/tu/certificado/server.crt
 ```
 
