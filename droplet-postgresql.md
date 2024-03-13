@@ -76,23 +76,20 @@ GRANT ALL PRIVILEGES ON DATABASE {db} TO {user};
 # Instalar open SSL
 sudo dnf install openssl
 
-# Generar clave privada
-openssl genrsa -aes128 -out server.key 2048
+# Generar SSL
+openssl req -new -x509 -days 365 -nodes -text -out server.crt -keyout server.key -subj "/CN={ip-privada-bd}"
 
-# Eliminar la contraseña de la clave
-openssl rsa -in server.key -out server.key
-
-# Generar la Solicitud de Firma de Certificado (CSR)
-openssl req -new -key server.key -out server.csr
-
-# Genera el Certificado SSL autofirmado
-openssl x509 -req -days 365 -in server.csr -signkey server.key -out server.crt
-
-# Generar el certificado autofirmado directamente
-openssl req -new -x509 -nodes -key server.key -days 365 -out server.crt
+# Cambiar permisos de los archivos (OPCIONAL)
+sudo chmod 644 *.crt
+sudo chmod 600 *.key
 
 # Mover los archivos a la carpeta de postgresql
-sudo mv server* /var/lib/pgsql/15/data/
+sudo mv * /var/lib/pgsql/15/data/
+
+# Cambiar propietario de los archivos
+# postgres:postgres
+# {user}:nginx
+sudo chown postgres:postgres /var/lib/pgsql/15/data/*
 
 # Editar el archivo postgresql.conf
 /var/lib/pgsql/15/data/postgresql.conf
@@ -114,40 +111,34 @@ sudo systemctl restart postgresql-15
 # Conectar a la base de datos
 # Acceder a postgres y conectarse a la base de datos
 sudo su - postgres
-psql -h localhost -p 23455 -U manzano -d db_sda_p1
+psql -h {host} -p {port} -U {userdb} -d {database}
 
 # Conectar a la base de datos directamente
-sudo -i -u postgres psql -h localhost -p 23455 -U manzano -d db_sda_p1
-```
+sudo -i -u postgres psql -h {host} -p {port} -U {userdb} -d {database}
 
-3.1 Generacion alterna del certificado
+# Copiar el contenido del server.crt al droplet web
+# BD
+sudo cat /var/lib/pgsql/15/data/server.crt
 
-```bash
-openssl genrsa -aes128 2048 > server.key
-
-openssl rsa -in server.key -out server.key
-
-chmod 400 server.key
-
-chown postgres.postgres server.key
-
-openssl req -new -x509 -key server.key -days 365 -out server.crt
-
-cp server.crt root.crt
+# WEB
+mkdir .postgresql && cd $_
+nano root.crt
+sudo chmod 644 *.crt
+sudo setsebool -P httpd_can_network_connect on
+sudo chcon -R -t httpd_sys_rw_content_t /home/{user}/.postgresql
 ```
 
 4. Agregar las variables de entorno
 
 ```bash
+# Configurar el archivo .env
 DB_CONNECTION=pgsql
-DB_HOST=localhost
-DB_PORT=5432
-DB_DATABASE=db_sda_p1
-DB_USERNAME=manzano
-DB_PASSWORD=
-DB_SSLMODE=require
-# Solo de manera local
-DB_CERT_PATH=/ruta/a/tu/certificado/server.crt
+DB_HOST={host}
+DB_PORT={port}
+DB_DATABASE={database}
+DB_USERNAME={user}
+DB_PASSWORD={password}
+DB_SSLMODE=verify-full
 ```
 
 5. Correr migraciones y seeders en laravel
