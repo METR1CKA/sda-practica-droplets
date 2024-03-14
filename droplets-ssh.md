@@ -389,3 +389,17 @@ Host {nombre_host}
   User {user}
   IdentityFile ~/{ruta_.ssh/nombre_archivo}
 ```
+
+## PROXY
+
+1. Instalar [nginx](droplet-nginx.md#nginx)
+
+2. Configurar el archivo de configuracion de nginx creando uno nuevo o editando el archivo [default.conf](./proxy.conf)
+
+3. Permitir el trafico de nginx en selinux
+
+```bash
+sudo setsebool -P httpd_can_network_connect 1
+```
+
+4. Reiniciar el servicio de nginx

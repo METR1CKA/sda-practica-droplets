@@ -116,7 +116,7 @@ sudo netstat -ptona
 
 4. Archivo de configuracion de nginx default.conf
 
-- [/etc/nginx/conf.d/default.conf](default.conf)
+- [/etc/nginx/conf.d/default.conf](./laravel.conf)
 
 5. Reiniciar el servicio de nginx
 
