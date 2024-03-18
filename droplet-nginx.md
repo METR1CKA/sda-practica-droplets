@@ -112,6 +112,12 @@ sudo service nginx enable
 # -o muestra una columna de temporizadores
 # -n muestra las direcciones IP y los números de puerto en lugar de los nombres de host y los servicios
 sudo netstat -ptona
+
+# Checar conexion de puerto en caso de cambiar el puerto de escucha
+sudo netstat -tuln | grep {puerto}
+
+# Cambiar el puerto de escucha de nginx
+sudo semanage port -a -t http_port_t -p tcp {port}
 ```
 
 4. Archivo de configuracion de nginx default.conf
