@@ -1,4 +1,4 @@
-## INICIO
+# INICIO
 
 > `sudo` solo se utiliza para ejecutar comandos no autorizados por el usuario, no es necesario siempre ponerlo, solo cuando no seas usuario root o de bajos privilegios detro del grupo sudo/wheel/etc.
 
@@ -7,6 +7,9 @@
 1. Actualizar los droplets
 
 ```bash
+sudo dnf update
+sudo dnf upgrade
+
 dnf update -y && dnf upgrade -y
 ```
 
@@ -28,21 +31,31 @@ dnf install nano vim net-tools -y
 dnf update -y && dnf upgrade -y
 ```
 
-5. Editar el archivo `/etc/ssh/sshd_config`
+## AUMENTAR LA MEMORIA RAM
+
+1. Apagar el droplet desde el panel de Digital Ocean
+
+2. Aumentar la capacidad de memoria ram desde el panel de digital ocean
+
+3. Encender el droplet
+
+# SSH
+
+## PUERTOS
+
+1. Editar el archivo `/etc/ssh/sshd_config`
 
 ```bash
 nano /etc/ssh/sshd_config
 ```
 
-## PUERTOS
-
-1. Cambiar el puerto de escucha del ssh para el droplet 1
+2. Cambiar el puerto de escucha del ssh para el droplet 1
 
 ```bash
 Port 55113
 ```
 
-2. Cambiar el puerto de escucha del ssh para el droplet 2
+3. Cambiar el puerto de escucha del ssh para el droplet 2
 
 ```bash
 Port 60112
@@ -83,11 +96,6 @@ service sshd status
 ```bash
 # Forma de crear el usuario
 adduser {user}
-
-# Otra forma de crear el usuario
-# Opcional, aplicar despues passwd en caso de que no pida la contraseña
-# -m crea el directorio home y -s establece el shell
-useradd -m -s /bin/bash {user}
 
 # Asignar una contraseña al usuario creado
 passwd {user}
@@ -229,41 +237,7 @@ ListenAddress {ip_privada_droplet_2}
 
 ## CONFIGURACION DE GOOGLE-AUTHENTICATOR
 
-1. Aumentar la capacidad de memoria ram como root
-
-```bash
-# Opcion 1: Ajustar en el panel de control de digitalocean
-
-# Opcion 2: Ajustar por comandos
-
-# Crear archivo para la memoria swap
-# -l es para el tamaño del archivo: ejemplo 2G
-fallocate -l 2G /swapfile
-
-# Asignar permisos al archivo
-# 600 es para que solo el usuario root pueda leer y escribir
-chmod 600 /swapfile
-
-# Marcar el archivo como espacio de intercambio
-mkswap /swapfile
-
-# Habilitar la memoria swap
-swapon /swapfile
-
-# Hacer persistente la memoria swap
-nano /etc/fstab
-
-# Agregar la siguiente linea al final del archivo para que se monte la memoria swap al reiniciar
-/swapfile swap swap defaults 0 0
-
-# Ajustar la preferencia del sistema por la memoria swap
-nano /etc/sysctl.conf
-
-# Agregar la siguiente linea al final del archivo para que el sistema use la memoria swap solo cuando sea necesario dentro del 10% de uso de la memoria ram
-vm.swappiness=10
-```
-
-2. Instalar epel-release para poder instalar los paquetes de google-authenticator y qrencode
+1. Instalar epel-release para poder instalar los paquetes de google-authenticator y qrencode
 
 ```bash
 # Installar Epel
@@ -274,7 +248,7 @@ dnf install epel-release
 dnf install google-authenticator qrencode qrencode-libs
 ```
 
-3. Generar key de google-authenticator
+2. Generar key de google-authenticator
 
 ```bash
 # Generar la key de google-authenticator
@@ -318,7 +292,7 @@ Do you want to enable rate-limiting? (y/n) y
 > Realizarla mas de una vez no reemplazara la anterior para el mismo usuario
 > En caso de realizarla mas de una vez, deberas volver a generar otro usuario siguiendo los mismos pasos y borrando al anterior
 
-4. Realizar backup de `sshd_config` y `sshd` para el uso de google-authenticator
+3. Realizar backup de `sshd_config` y `sshd` para el uso de google-authenticator
 
 ```bash
 # Restaurar el contexto de seguridad de SELinux a sus valores predeterminados en la carpeta .ssh
@@ -331,7 +305,7 @@ cp /etc/pam.d/sshd /etc/pam.d/sshd.bak
 cp /etc/ssh/sshd_config /etc/ssh/sshd_config.bak
 ```
 
-5. Configurar el PAM para el uso de google-authenticator
+4. Configurar el PAM para el uso de google-authenticator
 
 ```bash
 # Editar el archivo /etc/pam.d/sshd
@@ -345,7 +319,7 @@ auth       required     pam_permit.so
 
 > El `secret` es la ruta (absoluta o relativa) del archivo google_authenticator
 
-6. Configurar el SSH para el uso de google-authenticator
+5. Configurar el SSH para el uso de google-authenticator
 
 ```bash
 # Editar el archivo /etc/ssh/sshd_config.d/50-redhat.conf
@@ -363,16 +337,16 @@ KbdInteractiveAuthentication yes
 AuthenticationMethods publickey,password publickey,keyboard-interactive
 ```
 
-7. Reiniciar el servicio ssh y verificar el estado
+6. Reiniciar el servicio ssh y verificar el estado
 
 ```bash
 # Puedes comprobar errores con
 sudo journalctl -u sshd
 ```
 
-8. Probar el acceso ssh con google-authenticator
+7. Probar el acceso ssh con google-authenticator
 
-9. Una vez dentro probar la conexion SSH con el segundo droplet
+8. Una vez dentro probar la conexion SSH con el segundo droplet
 
 ```bash
 # Ejemplo: ssh fer@10.21.11.32 -p 60112 -i ~/.ssh/id_rsa
@@ -389,17 +363,3 @@ Host {nombre_host}
   User {user}
   IdentityFile ~/{ruta_.ssh/nombre_archivo}
 ```
-
-## PROXY
-
-1. Instalar [nginx](droplet-nginx.md#nginx)
-
-2. Configurar el archivo de configuracion de nginx creando uno nuevo o editando el archivo [default.conf](./proxy.conf)
-
-3. Permitir el trafico de nginx en selinux
-
-```bash
-sudo setsebool -P httpd_can_network_connect 1
-```
-
-4. Reiniciar el servicio de nginx

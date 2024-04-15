@@ -1,58 +1,16 @@
-## INICIO
+# INICIO
 
-1. Actualizar los droplets
+- [Inicio](./practica-ssh.md#inicio)
 
-```bash
-dnf update -y
-```
+## CONFIGURACION DE SSH
 
-2. Reiniciar
-
-```bash
-reboot
-```
-
-## AUMENTAR LA MEMORIA RAM
-
-1. Apagar el droplet desde el panel de Digital Ocean
-
-2. Aumentar la capacidad de memoria ram desde el panel de digital ocean
-
-3. Encender el droplet
+- [Configuracion de SSH](./practica-ssh.md#ssh)
 
 ## CREACION DE USUARIOS
 
-1. Crear usuarios en el droplet 3 para acceso a ssh, web e instalacion
+- [Crear usuarios](./practica-ssh.md#creacion-de-usuarios)
 
-```bash
-# Crear el usuario
-adduser {user}
-
-# Asignar una contraseña al usuario creado
-passwd {user}
-
-# Cambiar al usuario creado para probar el acceso
-su {user}
-```
-
-2. Agregar el usuario de instalacion al grupo wheel para acceso a sudo
-
-```bash
-# Opcional, agregar el usuario al grupo wheel para acceso a sudo
-# wheel es el grupo que permite el acceso a sudo
-# gpasswd es para agregar el usuario al grupo
-# -a es para agregar
-gpasswd -a {user} wheel
-
-# Para eliminar el usuario del grupo wheel
-gpasswd -d {user} wheel
-
-# Opcional
-# Asignar al usuario creado como propietario de su directorio en home, esto es opcional, se ejecuta como root antes de cambiar al usuario creado
-chown -R {user}:{user} /home/{user}
-```
-
-## NGINX
+# NGINX
 
 1. Instalacion de nginx
 
@@ -122,7 +80,7 @@ sudo semanage port -a -t http_port_t -p tcp {port}
 
 4. Archivo de configuracion de nginx default.conf
 
-- [/etc/nginx/conf.d/default.conf](./laravel.conf)
+- [/etc/nginx/conf.d/default.conf](../configs/nginx/default.conf)
 
 5. Reiniciar el servicio de nginx
 
@@ -141,7 +99,7 @@ sudo nginx -s reload
 sudo gpasswd -a {user} nginx
 ```
 
-## PHP Y COMPOSER
+# PHP Y COMPOSER
 
 1. Instalacion de PHP y Composer
 
@@ -284,3 +242,25 @@ sudo tail -f /var/log/php-fpm/error.log
 sudo journalctl -u nginx
 sudo journalctl -u php-fpm
 ```
+
+# PROXY
+
+1. Configurar el archivo de configuracion de nginx creando uno nuevo
+
+- [proxy.conf](../configs/nginx/proxy.conf)
+
+2. Permitir el trafico de nginx en selinux
+
+```bash
+sudo setsebool -P httpd_can_network_connect 1
+```
+
+3. Reiniciar el servicio de nginx
+
+# LOAD BALANCER
+
+1. Configurar el archivo de configuracion de nginx creando uno nuevo
+
+- [load-balancer.conf](../configs/nginx/load-balancer.conf)
+
+2. Reiniciar el servicio de nginx

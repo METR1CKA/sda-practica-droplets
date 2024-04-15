@@ -1,18 +1,16 @@
-## INICIO
+# INICIO
 
-1. Actualizar droplet
+- [Inicio](./practica-ssh.md#inicio)
 
-```bash
-dnf update
-```
+## CONFIGURACION DE SSH
 
-2. Reiniciar
+- [Configuracion de SSH](./practica-ssh.md#ssh)
 
-```bash
-reboot
-```
+## CREACION DE USUARIOS
 
-## POSTGRESQL
+- [Crear usuarios](./practica-ssh.md#creacion-de-usuarios)
+
+# POSTGRESQL
 
 1. Instalar postgresql
 
@@ -93,7 +91,7 @@ sudo chown postgres:postgres /var/lib/pgsql/15/data/*
 
 # Editar el archivo postgresql.conf
 /var/lib/pgsql/15/data/postgresql.conf
-- listen_addresses = 'localhost,{ip-privada}'
+- listen_addresses = 'localhost,{ip-privada},{otra-ip}'
 - port = {puerto personalizado}
 - max_connections = 100
 - password_encryption = scram-sha-256
@@ -103,7 +101,7 @@ sudo chown postgres:postgres /var/lib/pgsql/15/data/*
 
 # Configurar el archivo pg_hba.conf
 /var/lib/pgsql/15/data/pg_hba.conf
-- hostssl    database       userdb         {ip-privada-web} or {127.0.0.1}/32           scram-sha-256
+- hostssl    {database}    {userdb}    {ip-privada, 127.0.0.1/32, otra-ip}    scram-sha-256
 
 # Reiniciar el servicio
 sudo systemctl restart postgresql-15
@@ -138,10 +136,11 @@ DB_PORT={port}
 DB_DATABASE={database}
 DB_USERNAME={user}
 DB_PASSWORD={password}
-DB_SSLMODE=verify-full
+# Full: para checar todo / CA: checar solo el certificado y no host
+DB_SSLMODE={verify-full / verify-ca}
 ```
 
-5. Correr migraciones y seeders en laravel
+5. Correr migraciones y/o seeders en laravel
 
 ```bash
 php artisan migrate:fresh --seed
