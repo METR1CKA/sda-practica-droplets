@@ -16,14 +16,13 @@
 
 ```bash
 # Actualizar e instalar wireguard
-sudo apt update
-sudo dnf install elrepo-release epel-release wireguard-tools
+sudo dnf install elrepo-release epel-release wireguard-tools -y
 
 # Deshabilitar ElRepo (solo si causa problemas de actualización)
 sudo dnf config-manager --set-disabled elrepo
 
 # Actualizar
-sudo dnf update
+sudo dnf update -y
 ```
 
 2. Generar clave privada y pública
@@ -46,6 +45,10 @@ sudo cat /etc/wireguard/private.key | wg pubkey | sudo tee /etc/wireguard/public
 # CONFIGURACION DE VPN
 
 1. Configurar el servidor VPN
+
+```txt
+/etc/wireguard/wg0.conf
+```
 
 - [Configuración servidor VPN](../configs/vpn/server.wg0.conf)
 
@@ -80,11 +83,17 @@ sudo wg set wg0 peer <clave-publica-peer> remove
 3. Iniciar el servidor y cliente VPN (primero clientes y luego servidor)
 
 ```bash
+sudo wg-quick down wg0
+sudo wg-quick up wg0
+
 sudo systemctl enable wg-quick@wg0.service
-
 sudo systemctl start wg-quick@wg0.service
-
 sudo systemctl status wg-quick@wg0.service
+
+sudo service wg-quick@wg0 status
+sudo service wg-quick@wg0 start
+sudo service wg-quick@wg0 stop
+sudo service wg-quick@wg0 restart
 ```
 
 4. Verificar la conexión
@@ -114,3 +123,10 @@ DB_HOST={ip-vpn-db}
 
 - [Configuración Proxy](../configs/nginx/proxy.conf)
 - [Configuración Load Balancer](../configs/nginx/load-balancer.conf)
+
+Habilitar el servicio de DNS en el servidor VPN
+
+```bash
+# Servicio de resolución de DNS proporcionado por systemd
+sudo systemctl enable --now systemd-resolved
+```
