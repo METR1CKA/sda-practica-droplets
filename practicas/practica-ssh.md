@@ -366,7 +366,39 @@ Host {nombre_host}
 
 ## EXTRA
 
-1. Añadir Fail2Ban
+1. Firewall
+
+```bash
+# Instalar firewalld y habilitar el servicio
+sudo dnf install firewalld -y
+
+# Habilitar el servicio
+sudo systemctl enable firewalld
+
+# Inicializar el servicio antes de configurar las reglas de ssh_config
+sudo systemctl start firewalld
+
+# Remover servicios por default
+sudo firewall-cmd --zone=public --remove-service=cockpit --permanent
+sudo firewall-cmd --zone=public --remove-service=ssh --permanent
+sudo firewall-cmd --zone=public --remove-service=dhcpv6-client --permanent
+
+# Agregar servicios personalizados
+sudo firewall-cmd --zone=public --add-port={port}/tcp --permanent
+sudo firewall-cmd --zone=public --add-service=http --permanent
+sudo firewall-cmd --zone=public --add-service=https --permanent
+
+# Recargar las reglas
+sudo firewall-cmd --reload
+
+# Verificar el estado del servicio
+sudo firewall-cmd --state
+
+# Verificar el estado del servicio
+sudo firewall-cmd --list-all
+```
+
+2. Añadir Fail2Ban
 
 ```bash
 # Instalar Fail2Ban (root)
