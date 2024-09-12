@@ -363,3 +363,46 @@ Host {nombre_host}
   User {user}
   IdentityFile ~/{ruta_.ssh/nombre_archivo}
 ```
+
+## EXTRA
+
+1. Añadir Fail2Ban
+
+```bash
+# Instalar Fail2Ban (root)
+dnf install epel-release -y
+dnf install fail2ban -y
+
+# Habilitar Fail2Ban
+systemctl enable fail2ban.service
+systemctl status fail2ban.service
+
+# Configurar Fail2Ban
+cd /etc/fail2ban
+cp jail.conf jail.local
+cd jail.d
+
+# Archivo de configuracion de sshd
+nano sshd.conf
+
+[sshd]
+enabled = true
+filter = sshd
+port = {puerto_ssh}
+bantime = 21600
+maxretry = 3
+ignoreip = 127.0.0.1
+logpath = /var/log/auth.log
+
+# Reiniciar Fail2Ban
+fail2ban-client status sshd
+fail2ban-client status
+service status
+service fail2ban status
+service fail2ban restart
+service fail2ban status
+fail2ban-client status sshd
+
+# Desbanear una IP
+sudo fail2ban-client set sshd unbanip {remote-ip-address}
+```
