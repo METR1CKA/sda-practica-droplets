@@ -87,7 +87,7 @@ sudo mv * /var/lib/pgsql/15/data/
 # Cambiar propietario de los archivos
 # postgres:postgres
 # {user}:nginx
-sudo chown postgres:postgres /var/lib/pgsql/15/data/*
+sudo chown -R postgres:postgres /var/lib/pgsql/15/data/*
 
 # Editar el archivo postgresql.conf
 /var/lib/pgsql/15/data/postgresql.conf
