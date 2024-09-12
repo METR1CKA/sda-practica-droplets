@@ -170,7 +170,7 @@ sudo systemctl enable php-fpm
 1. Configurar proyecto de Laravel
 
 ```bash
-# Instalar node.js
+# Instalar node.js con NVM (No recomendado)
 curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.1/install.sh | bash
 
 source ~/.bashrc
@@ -179,6 +179,11 @@ nvm ls-remote
 nvm install {node-version}
 
 source ~/.bashrc
+
+# Instalar node.js con rpm
+# curl -fsSL https://rpm.nodesource.com/setup_{last_version}.x | sudo bash -
+curl -fsSL https://rpm.nodesource.com/setup_20.x | sudo bash -
+sudo dnf install nodejs -y
 
 # Clonar el repositorio de Laravel
 sudo dnf install git unzip -y
