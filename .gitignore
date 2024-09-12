@@ -1,0 +1,23 @@
+# Ignorar archivos y directorios generados por el sistema operativo
+.DS_Store
+Thumbs.db
+
+# Ignorar archivos de compilación
+*.o
+*.out
+
+# Ignorar archivos de dependencias y directorios
+node_modules/
+vendor/
+
+# Ignorar archivos de configuración local
+.env
+config.local.php
+
+# Ignorar archivos de registro y caché
+logs/
+cache/
+
+# Ignorar archivos de respaldo
+*.bak
+*.swp
