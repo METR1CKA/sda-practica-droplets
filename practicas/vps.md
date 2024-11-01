@@ -449,7 +449,7 @@ chmod 600 init-cloudflare.ini
 
 ## 4. Generar certificados SSL utilizando Certbot y el plugin de Cloudflare
 
-certbot certonly --dns-cloudflare --preferred-challenges dns --dns-cloudflare-credentials ~/.secrets/certbot/init-cloudflare.ini -d baseball.solidusystems.mx -d admin-baseball.solidusystems.mx -d api-baseball.solidusystems.mx
+certbot certonly --dns-cloudflare --preferred-challenges dns --dns-cloudflare-credentials ~/.secrets/certbot/init-cloudflare.ini -d domain.com -d admin-domain.com -d api-domain.com
 
 ## 5. Configurar parámetros SSL adicionales
 
@@ -457,8 +457,8 @@ sudo openssl dhparam -out /etc/ssl/certs/dhparam.pem 2048
 
 ### Rutas de archivos PEM para configuración de NGINX
 
-/etc/letsencrypt/live/baseball.solidusystems.mx/fullchain.pem
-/etc/letsencrypt/live/baseball.solidusystems.mx/privkey.pem
+/etc/letsencrypt/live/domain.com/fullchain.pem
+/etc/letsencrypt/live/domain.com/privkey.pem
 
 # Configuración de NGINX para proyectos específicos
 
@@ -477,14 +477,14 @@ nano /etc/nginx/conf.d/proyecto.conf
 server {
 listen 80;
 server_name qa-api.cclaesmeraldaapp.com;
-return 301 https://qa-api.cclaesmeraldaapp.com$request_uri;
+return 301 https://qa-api.domain.com$request_uri;
 }
 
 server {
 listen 443 ssl http2;
-server_name qa-api.cclaesmeraldaapp.com;
-ssl_certificate /etc/letsencrypt/live/qa-admin.cclaesmeraldaapp.com/fullchain.pem;
-ssl_certificate_key /etc/letsencrypt/live/qa-admin.cclaesmeraldaapp.com/privkey.pem;
+server_name qa-api.domain.com;
+ssl_certificate /etc/letsencrypt/live/qa-admin.domain.com/fullchain.pem;
+ssl_certificate_key /etc/letsencrypt/live/qa-admin.domain.com/privkey.pem;
 ssl_session_cache shared:SSL:10m;
 ssl_session_timeout 5m;
 ssl_protocols TLSv1.1 TLSv1.2 TLSv1.3;
@@ -670,13 +670,13 @@ sudo reboot
 module.exports = {
     apps: [
         {
-            name: "cron-tableau",
-            script: "node",
-            args: "ace scheduler:run",
-            interpreter: "none",
-            watch: false,
-            max_memory_restart: "256M",
-            instances: 1,
+        name: "cron-tableau",
+        script: "node",
+        args: "ace scheduler:run",
+        interpreter: "none",
+        watch: false,
+        max_memory_restart: "256M",
+        instances: 1,
         },
     ],
 }
