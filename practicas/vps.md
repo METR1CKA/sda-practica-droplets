@@ -391,19 +391,6 @@ service fail2ban restart
 
 sudo fail2ban-client set sshd unbanip (dirección IP remota)
 
----
-
-Esto cubre las secciones de configuración SSH, firewall avanzado, NGINX, y protección de SSH con Fail2Ban. Indícame cuando quieras que continúe con el siguiente bloque.
-
-Dijiste:
-Pasame otros 100
-ChatGPT dijo:
-ChatGPT
-Aquí tienes el siguiente bloque de 100 líneas mejor organizado:
-
-txt
-Copiar código
-
 # Agregar usuario al grupo de NGINX
 
 usermod -aG nginx user
